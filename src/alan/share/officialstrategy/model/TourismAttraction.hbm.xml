@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+    
+    <hibernate-mapping>
+    <class name="alan.share.officialstrategy.model.TourismAttraction" table="TourismAttraction">
+    <id name="tourismid">
+    <generator class="assigned"/>  <!-- 主键生成策略，app赋值 -->
+    </id>
+    <property name="locationid"/>
+    <property name="tourismname"/>
+    <property name="tourismforeignname"/>
+    <property name="tourismdescription"/>
+    <property name="tourismprice"/>
+    <property name="tourismopendesc"/>
+    <property name="tourismaddress"/>
+    <property name="tourismguide"/>
+    <property name="tourismphone"/>
+    <property name="tourismurl"/>
+    <property name="tourismactivity"/>
+    <property name="tourismtype"/>
+    <property name="currencytype"/>
+    <!-- 地点与地点分类的关联 -->
+  <many-to-one class="alan.share.officialstrategy.model.TourismCategory" column="tmcategoryid" name="tourismCategory" lazy="false"/>
+  <!-- 地点与城市的关联 -->
+  <many-to-one class="alan.share.officialstrategy.model.City" column="cityid" name="city" lazy="false"/>
+    </class>
+    </hibernate-mapping>

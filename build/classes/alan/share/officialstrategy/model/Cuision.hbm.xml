@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+    
+    <hibernate-mapping>
+    <class name="alan.share.officialstrategy.model.Cuision" table="Cuision">
+    <id name="cuisionid">
+    <generator class="assigned"/>  <!-- 主键生成策略，app赋值 -->
+    </id>
+    <property name="cuisionname"/>
+    <property name="cuisiondescription"/>
+    <property name="cuisionprice"/>
+    <property name="cuisionforeignprice"/>
+    <property name="cuisionpricecurrency"/>
+    <property name="cuisionforeigncurrency"/>
+    <property name="cuisionimage"/>
+    <!-- 地点封面与地点的关联 -->
+  <many-to-one class="alan.share.officialstrategy.model.TourismAttraction" column="tourismid" name="attraction" lazy="false"/>
+    </class>
+    </hibernate-mapping>

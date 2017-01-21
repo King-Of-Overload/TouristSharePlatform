@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="renderer" content="webkit">
+  <title>添加菜品</title>
+  <link rel="stylesheet" href="css/pintuer.css">
+    <link rel="stylesheet" href="css/admin.css">
+    <script src="js/jquery.js"></script>
+    <script src="libs/jquery-form.js"></script>
+    <link href="libs/bootstrap.min.css" rel="stylesheet">
+    <script src="libs/bootstrap.min.js"></script>
+    <script src="js/pintuer.js"></script>
+    <link rel="stylesheet" href="libs/ssi-uploader.css">
+    <script src="libs/ssi-uploader.js"></script>
+    <style>
+    .table th, .table td {
+text-align: center;
+vertical-align: middle!important;
+}
+
+    </style>
+    <script type="text/javascript">
+    $(function(){//jQuery入口
+      initCuisionData();
+
+      //表单提交回调
+      $("#cuisionForm").ajaxForm(function(response){
+        var resultStr=JSON.parse(response);
+        if(resultStr.result=='success'){
+          var cuision=resultStr.data;
+          var html;
+          html='<tr>';
+          html+='<td>'+cuision.cuisionid+'</td>';
+          html+='<td>'+cuision.cuisionname+'</td>';
+          html+='<td width="10%"><img src="'+cuision.cuisionimage+'" alt="" width="180" height="120" /></td>';
+          html+='<td>'+cuision.cuisionprice+' '+cuision.cuisionpricecurrency+'</td>';
+          html+='<td>';
+          html+='<div class="button-group">';
+          html+='<a type="button" class="button border-main" href="#"><span class="icon-edit"></span>修改</a>';
+          html+='<a class="button border-red" href="javascript:void(0)" onclick="return del(17)">';
+          html+='<span class="icon-trash-o"></span> 删除</a>';
+          html+='</div></td></tr>';
+          $('.table').append(html);
+        }else if(resultStr.result=='error'){
+          alert('发布失败，请稍后重试');
+        }
+      });
+
+      $('#submitCuision').click(function(e){//提交按钮点击事件
+        $('#cuisionForm').submit();
+      });
+
+    });//jQuery入口
+
+    /**
+     * 初始化列表菜品数据
+     */
+    function initCuisionData(){
+      var attractionid=window.localStorage.register_AttractionId;
+      $('input[name=attractionid]').val(attractionid);//为隐藏标签赋值
+      $.ajax({
+        type:'POST',
+        async:true,
+        cache:false,
+        url:'tripuser_getAllCuisionData.do',
+        data:{attractionid:attractionid},
+        success:function(result){
+          var jsonResult=JSON.parse(result);
+          $('.table').empty();
+          var tableHeader='<tr><th width="5%">菜品号</th><th>菜品名称</th><th>图片</th><th>价格</th><th width="400">操作</th></tr>';
+          $('.table').append(tableHeader);
+          if(jsonResult.length>0){
+            for(var i=0;i<jsonResult.length;i++){
+              var cuision=jsonResult[i];
+              var html;
+              html='<tr>';
+              html+='<td>'+cuision.cuisionid+'</td>';
+              html+='<td>'+cuision.cuisionname+'</td>';
+              html+='<td width="10%"><img src="'+cuision.cuisionimage+'" alt="" width="180" height="120" /></td>';
+              html+='<td>'+cuision.cuisionprice+' '+cuision.cuisionpricecurrency+'</td>';
+              html+='<td>';
+              html+='<div class="button-group">';
+              html+='<a type="button" class="button border-main" href="#"><span class="icon-edit"></span>修改</a>';
+              html+='<a class="button border-red" href="javascript:void(0)" onclick="return del(17)">';
+              html+='<span class="icon-trash-o"></span> 删除</a>';
+              html+='</div></td></tr>';
+              $('.table').append(html);
+            }
+          }
+        },
+        error:function(e){
+          console.log(e);
+        }
+      });
+    }
+    </script>
+</head>
+<body>
+  <div class="panel admin-panel margin-top">
+    <div class="panel-head" id="add"><strong><span class="icon-pencil-square-o"></span>菜品列表</strong>
+  <button class="button button-little bg-blue" type="button" name="addSingleView" data-toggle="modal" data-target="#addCuisionModal">添加菜品</button>
+    </div>
+    <table class="table table-hover text-center">
+      <tr>
+        <th width="5%">菜品号</th>
+        <th>菜品名称</th>
+        <th>图片</th>
+        <th>价格</th>
+        <th width="250">操作</th>
+      </tr>
+      <tr>
+        <td>17</td>
+        <td>公司简介</td>
+        <td>1</td>
+        <td></td>
+        <td>
+        <div class="button-group">
+        <a type="button" class="button border-main" href="#"><span class="icon-edit"></span>修改</a>
+         <a class="button border-red" href="javascript:void(0)" onclick="return del(17)"><span class="icon-trash-o"></span> 删除</a>
+        </div>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+
+  <!--添加新菜品模态框-->
+  <div class="modal fade" id="addCuisionModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+      <div class="modal-dialog" role="document" style="width: 1280px;">
+          <div class="modal-content" style="height:400px;">
+              <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
+                  <h3 class="modal-title" id="ModalLabel">添加美食</h3>
+              </div>
+              <form action="tripuser_saveCuision.do" enctype="multipart/form-data" id="cuisionForm" method="post">
+                <input type="hidden" name="attractionid"/>
+              <div class="modal-body">
+                   <p><label>菜品名称</label>
+                   <input type="text" name="cuisionname"></input>
+                    <label style="margin-left: 5px;">当地价格</label>
+                    <input type="text" name="cuisionprice"></input>
+                    <label style="margin-left: 5px;">当地货币类型</label>
+                    <input type="text" name="cuisionpricecurrency"></input>
+                    <label style="margin-left: 5px;">中国价格</label>
+                    <input type="text" name="cuisionforeignprice"></input>
+                    <label style="margin-left: 5px;">人民币</label>
+                    <input type="text" name="cuisionforeigncurrency"></input>
+                    </p>
+                    <p>
+                      <label>菜品图片</label>
+                        <input type="file" class="button bg-blue margin-left" id="image1" value="+ 浏览上传" name="cuision_cover">
+                    </p>
+                     <p>
+                   <label>菜品介绍</label>
+                   <textarea class="input" name="cuisiondescription" data-validate="required:请输入美食介绍"></textarea>
+                   </p>
+             </div>
+          <div class="modal-footer">
+                  <input type="submit" class="btn btn-primary" data-dismiss="modal" id="submitCuision">
+
+                </div>
+           </form>
+      </div>
+          </div>
+      </div>
+</body>
+</html>

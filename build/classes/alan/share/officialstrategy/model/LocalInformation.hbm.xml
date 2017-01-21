@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+    
+    <hibernate-mapping>
+    <class name="alan.share.officialstrategy.model.LocalInfomation" table="LocalInfomation">
+    <id name="localid">
+    <generator class="assigned"/>  <!-- 主键生成策略，app赋值-->
+    </id>
+    <property name="cityid"/>
+    <property name="localbref"/>
+    <property name="localcannotmisscontent"/>
+    <property name="localcannotmissplaintext"/>
+    <property name="localarrive"/>
+    <property name="localtraffic"/>
+    <property name="localguide"/>
+    <property name="localtips"/>
+    <property name="localdate"/>
+    <property name="localcover"/>
+    </class>
+    </hibernate-mapping>

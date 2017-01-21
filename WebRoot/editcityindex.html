@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="renderer" content="webkit">
+<title>编辑城市主页</title>
+<link rel="stylesheet" href="css/pintuer.css">
+    <link rel="stylesheet" href="css/admin.css">
+    <script src="js/jquery.js"></script>
+    <script src="js/pintuer.js"></script>
+    <script src="libs/jquery-form.js"></script>
+    <script type="text/javascript">
+    var ue;
+    var htmlContent;
+      $(function(){
+        initEditData();
+        ue = UE.getEditor('container',{//实例化对象
+  autoHeight: true,
+  toolbars: [['anchor','undo','redo','bold','indent','snapscreen','italic','underline','strikethrough','subscript','superscript','|','formatmatch','selectall','preview','horizontal','time','date','unlink','|',
+             'inserttable','insertrow','insertcol','mergeright', 'mergedown', 'deleterow', 'deletecol','splittorows', 'splittocols', 'splittocells', 'deletecaption','inserttitle', 'mergecells', 'deletetable','|',
+            'fontfamily', 'fontsize', 'paragraph','|',
+           'simpleupload','insertvideo','attachment','link','emotion','spechars','searchreplace','|',
+          'justifyleft','justifyright','justifycenter','justifyjustify', 'forecolor', 'backcolor','insertorderedlist', 'insertunorderedlist', 'fullscreen','|'],
+          ['rowspacingtop','rowspacingbottom','pagebreak','imageleft','imageright','imagecenter','autotypeset','touppercase','tolowercase','background','template','music','drafts','charts']],
+  initialFrameHeight:500,
+  autoHeightEnabled: false,
+  autoFloatEnabled:true,
+  scaleEnabled:true
+  });
+  //设置编辑器的内容
+  ue.ready(function() {
+     //设置编辑器的内容
+     ue.setContent(htmlContent);
+  });
+
+//表单提交回调
+$("#localindex").ajaxForm(function(data){
+             alert(data);
+       });
+
+  //绑定提交按钮点击事件
+  $('button[name=submitBtn]').click(function(e){
+    var cannotmissHtmlContent=ue.getContent();//不可错过html内容
+    var cannotmissPlainText=ue.getContentTxt();//纯文本
+    $('#localContent').val(cannotmissHtmlContent);
+    $('#localPlainText').val(cannotmissPlainText);
+    $('input[name=selected_cityid]').val(localStorage.selected_cityid);
+    //document.localindex.submit();//提交表单
+  });
+
+   //添加景点按钮
+  $('button[name=addView]').click(function(e) {
+    location.href='viewlist.html';
+  });
+//添加美食
+  $('button[name=addFood]').click(function(e) {
+    location.href='foodlist.html';
+  });
+//添加酒店
+  $('button[name=addHotel]').click(function(e){
+    location.href='hotellist.html';
+  });
+//添加购物
+  $('button[name=addShop]').click(function(e){
+    location.href='shoplist.html';
+  });
+
+  $('button[name=addPlay]').click(function(){
+    location.href='playlist.html';
+  });
+
+  $('button[name=addLive]').click(function(){
+    location.href='livelist.html';
+  });
+
+  $('button[name=addRoute]').click(function(){
+    location.href='routelist.html';
+  });
+        });//jQuery入口函数
+
+
+//数据库访问查询是否有记录
+      function initEditData(){
+
+        var current_cityid=localStorage.selected_cityid;
+        $.ajax({
+          url:'tripuser_initEditContentData.do',
+          type:'POST',
+          async:true,
+          cache:false,
+          data:{current_cityid:current_cityid},
+          success:function(response){
+            var jsonResult=JSON.parse(response);
+            if(jsonResult.result=='exist'){//添加过数据
+              var information=jsonResult.data;
+              $('textarea[name=s_local_bref]').val(information.localbref);
+              htmlContent=information.localcannotmisscontent;
+              $('textarea[name=s_howto_arrive]').val(information.localarrive);
+              $('textarea[name=s_traffic]').val(information.localtraffic);
+              $('textarea[name=s_guide]').val(information.localguide);
+              $('textarea[name=s_tips]').val(information.localtips);
+            }else{
+              htmlContent='请在此处键入不可错过的内容，产品小哥哥小姐姐千万不要让用户失望哦';
+            }
+          },
+          error:function(response){
+            console.log(response);
+          }
+        });
+      }
+    </script>
+</head>
+<body>
+<div class="panel admin-panel margin-top">
+  <div class="panel-head" id="add"><strong><span class="icon-pencil-square-o"></span>增加内容</strong>
+<button class="button button-little bg-blue" type="button" name="addView">景点管理</button>
+<button class="button button-little bg-green" type="button" name="addFood">美食管理</button>
+<button class="button button-little bg-yellow" type="button" name="addHotel">酒店管理</button>
+<button class="button button-little bg-dot" type="button" name="addShop">购物管理</button>
+<button class="button button-little bg-mix" type="button" name="addPlay">娱乐管理</button>
+<button class="button button-little bg-main" type="button" name="addLive">生活管理</button>
+<button class="button button-little bg-blue" type="button" name="addRoute">添加路线</button>
+  </div>
+  <div class="body-content">
+    <form method="post" class="form-x" action="tripuser_editLocalInfo.do" enctype="multipart/form-data" name="localindex" id="localindex">
+      <input type="hidden" name="selected_cityid"  value="" />
+      <div class="form-group">
+        <div class="label">
+          <label>城市图片：</label>
+        </div>
+        <div class="field">
+          <input type="file" class="button bg-blue margin-left" id="image1" value="+ 浏览上传"  style="float:left;" name="local_cover">
+          <div class="tipss">图片尺寸：1920*200</div>
+        </div>
+      </div>
+       <div class="form-group">
+        <div class="label">
+          <label>目的地概况：</label>
+        </div>
+        <div class="field">
+          <textarea type="text" class="input" name="s_local_bref" style="height:200px;" data-validate="required:请输入目的地概况"></textarea>
+        </div>
+     </div>
+       <div class="form-group">
+        <div class="label">
+          <label>不可错过：</label>
+        </div>
+        <div class="field">
+          <!-- 富文本编辑器 -->
+                        <!-- 加载编辑器的容器 -->
+              <script id="container" name="content" type="text/plain">
+                  这里写你的初始化内容
+              </script>
+                  <!-- 配置文件 -->
+              <script type="text/javascript" src="ueditor.config.js"></script>
+              <!-- 编辑器源码文件 -->
+              <script type="text/javascript" src="ueditor.all.js"></script>
+        </div>
+      </div>
+      <input name="localContent" type="hidden" id="localContent">
+      <input name="localPlainText" type="hidden" id="localPlainText">
+      <div class="form-group">
+        <div class="label">
+          <label>如何到达：</label>
+        </div>
+        <div class="field">
+          <textarea type="text" class="input" name="s_howto_arrive" style="height:360px;" data-validate="required:请输入如何到达"></textarea>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="label">
+          <label>交通攻略：</label>
+        </div>
+        <div class="field">
+          <textarea type="text" class="input" name="s_traffic" style="height:360px;" data-validate="required:请输入交通攻略"></textarea>
+        </div>
+      </div>
+
+<div class="form-group">
+        <div class="label">
+          <label>活动指南：</label>
+        </div>
+        <div class="field">
+          <textarea type="text" class="input" name="s_guide" style="height:360px;" data-validate="required:请输入活动指南"></textarea>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="label">
+          <label>小贴士：</label>
+        </div>
+        <div class="field">
+          <textarea type="text" class="input" name="s_tips" style="height:360px;" data-validate="required:请输入小贴士"></textarea>
+        </div>
+      </div>
+
+     <div class="form-group">
+        <div class="label">
+          <label></label>
+        </div>
+        <div class="field">
+          <button class="button bg-main icon-check-square-o" type="submit" name="submitBtn"> 提交</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+</body>
+</html>

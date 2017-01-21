@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="renderer" content="webkit">
+    <title>地区管理</title>
+    <link rel="stylesheet" href="css/pintuer.css">
+    <link rel="stylesheet" href="css/admin.css">
+    <script src="js/jquery.js"></script>
+    <script src="js/pintuer.js"></script>
+    <script>
+$(function(){
+  //大洲数据初始化
+  getIslandData();
+
+  //绑定大洲的change事件
+  $('select[name=s_island]').change(function(event) {
+    /*
+    alert('value：'+$(this).val());//获取value
+    alert('text：'+$(this).find("option:selected").text());//获取选中文本
+     */
+    getProvinceData($(this).val());
+  });
+  //绑定地区的change事件
+  $('select[name=s_province]').change(function(event) {
+    getCityData($(this).val());
+  });
+});
+
+//获取大洲数据
+function getIslandData(){
+  $.ajax({
+    type:'POST',
+    async:true,
+    cache:false,
+    url:'tripuser_getIsland.do',
+    success:function(response){
+      $('select[name=s_island]').empty();
+      var results=JSON.parse(response);
+      for(var i=0;i<results.length;i++){
+        var destination=results[i];
+        var html='<option value="'+destination.desid+'">'+destination.desname+'</option>';
+        $('select[name=s_island]').append(html);
+      }
+      getProvinceData(results[0].desid);
+    },
+    error:function(response){
+      console.log(response);
+    }
+  });
+}
+
+//查找相关的国家或者省份(国内)
+function getProvinceData(desid){
+  $.ajax({
+    type:'POST',
+    async:true,
+    cache:false,
+    data:{desid:desid},
+    url:'tripuser_getProvinceByDesId.do',
+    success:function(response){
+      $('select[name=s_province]').empty();
+      var results=JSON.parse(response);
+      for(var i=0;i<results.length;i++){
+        var province=results[i];
+        var html='<option value="'+province.provinceid+'">'+province.provincename+'</option>';
+        $('select[name=s_province]').append(html);
+      }
+      if(results.length>0){
+        getCityData(results[0].provinceid);
+      }
+    },
+    error:function(response){
+      console.log(response);
+    }
+  });
+}
+
+//查找与province相关的城市
+function getCityData(provinceid){
+  $.ajax({
+    type:'POST',
+    async:true,
+    cache:false,
+    data:{provinceid:provinceid},
+    url:'tripuser_getCityByPid.do',
+    success:function(response){
+      $('.table').empty();
+      var tableTitle='<tr><th width="5%">ID</th><th>地区名称</th><th>编号</th><th width="250">操作</th></tr>';
+      $('.table').append(tableTitle);//添加表格开头
+      var results=JSON.parse(response);
+      for(var i=0;i<results.length;i++){
+        var city=results[i];
+        var html;
+        html='<tr><td>'+city.cityid+'</td>';
+        html+='<td>'+city.cityname+'</td><td>'+city.citykey+'</td>';
+        html+='<td><div class="button-group">';
+        html+='<a type="button" class="button border-main" href="javascript:void(0);" onclick="edit(\''+city.cityid+'\');"><span class="icon-edit"></span>编辑</a>';
+        html+='<a class="button border-red" href="javascript:void(0)" onclick="return del(17)">';
+        html+='<span class="icon-trash-o"></span> 删除</a></div></td></tr>';
+        $('.table').append(html);
+      }
+    },
+    error:function(response){
+      console.log(response);
+    }
+  });
+}
+
+function edit(cityid){
+  localStorage.selected_cityid=cityid;
+  location.href='editcityindex.html';
+}
+    </script>
+</head>
+<body>
+<div class="panel admin-panel">
+  <div class="panel-head"><strong class="icon-reorder">地区管理</strong></div>
+  <div class="padding border-bottom">
+  <a class="button border-yellow" href=""><span class="icon-plus-square-o"></span> 添加内容</a>
+  &nbsp;&nbsp;选择大洲
+          <select name="s_island" class="input" style="width:80px; line-height:17px; display:inline-block">
+            <option value="">选择</option>
+            <option value="1">是</option>
+            <option value="0">否</option>
+          </select>
+          &nbsp;&nbsp;选择地区
+          <select name="s_province" class="input" style="width:150px; line-height:17px; display:inline-block">
+            <option value="">选择</option>
+            <option value="1">是</option>
+            <option value="0">否</option>
+          </select>
+  </div>
+  <table class="table table-hover text-center">
+    <tr>
+      <th width="5%">ID</th>
+      <th>地区名称</th>
+      <th>编号</th>
+      <th width="250">操作</th>
+    </tr>
+
+    <tr>
+      <td>17</td>
+      <td>公司简介</td>
+      <td>1</td>
+      <td>
+      <div class="button-group">
+      <a type="button" class="button border-main" href="#"><span class="icon-edit"></span>修改</a>
+       <a class="button border-red" href="javascript:void(0)" onclick="return del(17)"><span class="icon-trash-o"></span> 删除</a>
+      </div>
+      </td>
+    </tr>
+
+  </table>
+</div>
+<script>
+function del(id){
+	if(confirm("您确定要删除吗?")){
+
+	}
+}
+</script>
+
+</body></html>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+    
+    <hibernate-mapping>
+    <class name="alan.share.officialstrategy.model.Routes" table="Routes">
+    <id name="routeid">
+    <generator class="assigned"/>  <!-- 主键生成策略，app赋值 -->
+    </id>
+    <property name="routename"/>
+    <property name="routecontent"/>
+    <property name="routeplaintext"/>
+    <property name="routecover"/>
+    <property name="routedate"/>
+    <!-- 路线与城市的关联 -->
+  <many-to-one class="alan.share.officialstrategy.model.City" column="cityid" name="city" lazy="false"/>
+    </class>
+    </hibernate-mapping>

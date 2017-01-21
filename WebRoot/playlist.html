@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="renderer" content="webkit">
+  <title>娱乐列表</title>
+  <link rel="stylesheet" href="css/pintuer.css">
+    <link rel="stylesheet" href="css/admin.css">
+    <script src="js/jquery.js"></script>
+    <script src="libs/jquery-form.js"></script>
+    <link href="libs/bootstrap.min.css" rel="stylesheet">
+    <script src="libs/bootstrap.min.js"></script>
+    <script src="js/pintuer.js"></script>
+    <link rel="stylesheet" href="libs/ssi-uploader.css">
+    <script src="libs/ssi-uploader.js"></script>
+    <script>
+    var categoryid;
+    $(function(){//jQuery入口
+      initPlayData();//初始化酒店列表
+      initCategorySelectData();//初始化列表
+
+      //分类点击事件
+      $('select[name=category_fst]').change(function(e) {
+        categoryid=$(this).val();
+      });
+
+      //添加购物按钮点击事件
+      $('#submitPlay').click(function(e) {
+        var selected_cityid=localStorage.selected_cityid;
+        var type='play';
+        var tourismname=$('input[name=tourismname]').val();
+        var tourismforeignname=$('input[name=tourismforeignname]').val();
+        var tourismprice=$('input[name=tourismprice]').val();
+        var currencytype=$('input[name=currencytype]').val();
+        var tourismphone=$('input[name=tourismphone]').val();
+        var tourismdescription=$('textarea[name=tourismdescription]').val();
+        var tourismopendesc=$('textarea[name=tourismopendesc]').val();
+        var tourismaddress=$('textarea[name=tourismaddress]').val();
+        var tourismguide=$('textarea[name=tourismguide]').val();
+        var tourismurl=$('textarea[name=tourismurl]').val();
+        var tourismactivity=$('textarea[name=tourismactivity]').val();
+        var longitude=$('input[name=longitude]').val();
+        var latitude=$('input[name=latitude]').val();
+        $.ajax({
+          type:'POST',
+          async:true,
+          cache:false,
+          url:'tripuser_addTourismContent.do',
+          data:{selected_cityid:selected_cityid,type:type,tourismname:tourismname,tourismforeignname:tourismforeignname,tourismprice:tourismprice,currencytype:currencytype,tourismphone:tourismphone,tourismdescription:tourismdescription,tourismopendesc:tourismopendesc,tourismaddress:tourismaddress,tourismguide:tourismguide,tourismurl:tourismurl,tourismactivity:tourismactivity,longitude:longitude,latitude:latitude,categoryid:categoryid},
+          success:function(response){
+            var attraction=JSON.parse(response);
+            var html;
+              html+='<tr>';
+              html+='<td>'+attraction.tourismid+'</td>';
+              html+='<td>'+attraction.tourismname+'</td>';
+              html+='<td>'+attraction.tourismCategory.tmcategoryname+'</td>';
+              html+='<td>'+attraction.tourismprice+' '+attraction.currencytype+'</td>';
+              html+='<td>';
+              html+='<div class="button-group">';
+              html+='<a type="button" class="button border-main" href="#" data-toggle="modal" data-target="#addCoverModal" onclick="registerAttractionId(\''+attraction.tourismid+'\')"><span class="icon-edit"></span>添加封面</a>';
+              html+='<a type="button" class="button border-main" href="#"><span class="icon-edit"></span>修改</a>';
+              html+='<a class="button border-red" href="javascript:void(0)" onclick="return del(17)">';
+              html+='<span class="icon-trash-o"></span> 删除</a>';
+              html+='</div></td></tr>';
+              $('.table').append(html);
+          },
+          error:function(e){
+            console.log(e);
+          }
+        });
+      });
+
+      $('#addCoverModal').on('shown.bs.modal', function (e) {//模态框打开时调用
+        var attractionid=localStorage.register_AttractionId;
+        $('#ssi-upload').ssi_uploader({
+        url: 'tripuser_uploadAttractionCoverImage.do',
+        locale:'chn',
+        allowed:['jpg','gif','png','jpeg'],
+        data:{attractionid:attractionid}
+      });
+      });
+    });//jQuery入口
+
+    /**
+     * 初始化娱乐店铺列表
+     */
+       function initPlayData(){
+         var selected_cityid=window.localStorage.selected_cityid;
+         $.ajax({
+           type:'POST',
+           async:true,
+           cache:false,
+           url:'tripuser_getAllTourismData.do',
+           data:{selected_cityid:selected_cityid,type:'play'},
+           success:function(result){
+             var jsonResult=JSON.parse(result);
+             $('.table').empty();
+             var tableHeader='<tr><th width="5%">娱乐号</th><th>娱乐名称</th><th>所属分类</th><th>价格</th><th width="400">操作</th></tr>';
+             $('.table').append(tableHeader);
+             if(jsonResult.datasize>0){
+               var result=jsonResult.result;
+               for(var i=0;i<result.length;i++){
+                 var attraction=result[i];
+                 var html;
+                 html='<tr>';
+                 html+='<td>'+attraction.tourismid+'</td>';
+                 html+='<td>'+attraction.tourismname+'</td>';
+                 html+='<td>'+attraction.tourismCategory.tmcategoryname+'</td>';
+                 html+='<td>'+attraction.tourismprice+' '+attraction.currencytype+'</td>';
+                 html+='<td>';
+                 html+='<div class="button-group">';
+                 html+='<a type="button" class="button border-main" href="#" data-toggle="modal" data-target="#addCoverModal" onclick="registerAttractionId(\''+attraction.tourismid+'\')"><span class="icon-edit"></span>添加封面</a>';
+                 html+='<a type="button" class="button border-main" href="#"><span class="icon-edit"></span>修改</a>';
+                 html+='<a class="button border-red" href="javascript:void(0)" onclick="return del(17)">';
+                 html+='<span class="icon-trash-o"></span> 删除</a>';
+                 html+='</div></td></tr>';
+                 $('.table').append(html);
+               }
+             }
+           },
+           error:function(e){
+             console.log(e);
+           }
+         });
+       }
+
+       /**
+        * 初始化模态框列表下拉数据
+        */
+       function initCategorySelectData(){
+         $.ajax({
+           type:'POST',
+           async:true,
+           cache:false,
+           data:{type:'play'},
+           url:'tripuser_getTourismCategory.do',
+           success:function(response){
+             var results=JSON.parse(response);
+             $('select[name=category_fst]').empty();
+             categoryid=results[0].tmcategoryid;
+             for(var i=0;i<results.length;i++){
+               var category=results[i];
+               var html='<option value="'+category.tmcategoryid+'">'+category.tmcategoryname+'</option>';
+               $('select[name=category_fst]').append(html);
+             }
+           },
+           error:function(e){
+             console.log(e);
+           }
+         });
+       }
+    </script>
+</head>
+<body>
+  <div class="panel admin-panel margin-top">
+    <div class="panel-head" id="add"><strong><span class="icon-pencil-square-o"></span>娱乐列表</strong>
+  <button class="button button-little bg-blue" type="button" name="addSingleView" data-toggle="modal" data-target="#addPlayModal">添加娱乐</button>
+    </div>
+    <table class="table table-hover text-center">
+      <tr>
+        <th width="5%">娱乐号</th>
+        <th>娱乐名称</th>
+        <th>所属分类</th>
+        <th>价格</th>
+        <th width="250">操作</th>
+      </tr>
+      <tr>
+        <td>17</td>
+        <td>公司简介</td>
+        <td>1</td>
+        <td></td>
+        <td>
+        <div class="button-group">
+        <a type="button" class="button border-main" href="#"><span class="icon-edit"></span>修改</a>
+         <a class="button border-red" href="javascript:void(0)" onclick="return del(17)"><span class="icon-trash-o"></span> 删除</a>
+        </div>
+        </td>
+      </tr>
+
+    </table>
+  </div>
+
+  <!--模态框-->
+  <div class="modal fade" id="addPlayModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+      <div class="modal-dialog" role="document" style="width: 1280px;">
+          <div class="modal-content" style="height:880px;">
+              <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
+                  <h3 class="modal-title" id="ModalLabel">添加娱乐</h3>
+              </div>
+              <div class="modal-body">
+                   <p><label>娱乐名称</label>
+                   <input type="text" name="tourismname"></input>
+                   <label style="margin-left: 5px;">娱乐外文名称</label>
+                    <input type="text" name="tourismforeignname"></input>
+                    <label style="margin-left: 5px;">娱乐价格</label>
+                    <input type="text" name="tourismprice"></input>
+                    <label style="margin-left: 5px;">货币类型</label>
+                    <input type="text" name="currencytype"></input>
+                    <label style="margin-left: 5px;">娱乐电话</label>
+                    <input type="text" name="tourismphone"></input>
+                    选择分类
+            <select name="category_fst" class="input" style="width:80px; line-height:17px; display:inline-block">
+              <option value="1">是</option>
+              <option value="0">否</option>
+            </select>
+                    </p>
+                     <p>
+                   <label>娱乐介绍</label>
+                   <textarea class="input" name="tourismdescription" data-validate="required:请输入景点介绍"></textarea>
+                   </p>
+                   <p>
+                   <label>开门时间说明</label>
+                   <textarea class="input" name="tourismopendesc" data-validate="required:请输入时间"></textarea>
+                     <label>地址</label>
+                     <textarea class="input" name="tourismaddress"></textarea>
+                     <label>导航信息</label>
+                     <textarea class="input" name="tourismguide"></textarea>
+                     <label>娱乐网址</label>
+                     <textarea class="input" name="tourismurl"></textarea>
+                     <label>活动和减免信息</label>
+                     <textarea class="input" name="tourismactivity"></textarea>
+                   </p>
+                   <p>
+                     <label>经度</label>
+                     <input type="text" name="longitude"></input>
+                     <label>纬度</label>
+                     <input type="text" name="latitude"></input>
+
+                   </p>
+             </div>
+          <div class="modal-footer">
+                  <button type="button" class="submit btn btn-primary" data-dismiss="modal" id="submitPlay">提交</button>
+                </div>
+      </div>
+
+          </div>
+      </div>
+
+  <!-- 添加封面模态框-->
+      <div class="modal fade" id="addCoverModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+      <div class="modal-dialog" role="document" style="width: 1280px;">
+          <div class="modal-content" style="height:600px;">
+              <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
+                  <h3 class="modal-title" id="ModalLabel">添加购物封面图片</h3>
+              </div>
+              <div class="modal-body">
+                   <p>
+                   <input type="file" multiple id="ssi-upload" name="imgFile" />
+                    </p>
+             </div>
+      </div>
+
+          </div>
+      </div>
+</body>
+</html>

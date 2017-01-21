@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="renderer" content="webkit">
+  <title>推荐路线列表</title>
+  <link rel="stylesheet" href="css/pintuer.css">
+    <link rel="stylesheet" href="css/admin.css">
+    <script src="js/jquery.js"></script>
+    <script src="libs/jquery-form.js"></script>
+    <link href="libs/bootstrap.min.css" rel="stylesheet">
+    <script src="libs/bootstrap.min.js"></script>
+    <script src="js/pintuer.js"></script>
+    <link rel="stylesheet" href="libs/ssi-uploader.css">
+    <script src="libs/ssi-uploader.js"></script>
+    <style>
+    .table th, .table td {
+    text-align: center;
+    vertical-align: middle!important;
+    }
+    </style>
+    <script>
+    var ue;
+    var htmlContent;
+    $(function(){//jquery入口
+      initRouteData();//初始化路线列表
+      ue = UE.getEditor('container',{//实例化对象
+autoHeight: true,
+toolbars: [['anchor','undo','redo','bold','indent','snapscreen','italic','underline','strikethrough','subscript','superscript','|','formatmatch','selectall','preview','horizontal','time','date','unlink','|',
+           'inserttable','insertrow','insertcol','mergeright', 'mergedown', 'deleterow', 'deletecol','splittorows', 'splittocols', 'splittocells', 'deletecaption','inserttitle', 'mergecells', 'deletetable','|',
+          'fontfamily', 'fontsize', 'paragraph','|',
+         'simpleupload','insertvideo','attachment','link','emotion','spechars','searchreplace','|',
+        'justifyleft','justifyright','justifycenter','justifyjustify', 'forecolor', 'backcolor','insertorderedlist', 'insertunorderedlist', 'fullscreen','|'],
+        ['rowspacingtop','rowspacingbottom','pagebreak','imageleft','imageright','imagecenter','autotypeset','touppercase','tolowercase','background','template','music','drafts','charts']],
+initialFrameHeight:500,
+autoHeightEnabled: false,
+autoFloatEnabled:true,
+scaleEnabled:true
+});
+//设置编辑器的内容
+ue.ready(function() {
+   //设置编辑器的内容
+   ue.setContent('管理员们，认真填写哦');
+});
+
+$('#submitRoute').click(function(e){
+  var routeHtmlContent=ue.getContent();//不可错过html内容
+  var routePlainText=ue.getContentTxt();//纯文本
+  $('#routeContent').val(routeHtmlContent);
+  $('#routePlainText').val(routePlainText);
+  $('input[name=selected_cityid]').val(localStorage.selected_cityid);
+  $('#routeform').submit();
+});
+
+$('#routeform').ajaxForm(function(response){
+  var resultStr=JSON.parse(response);
+  if(resultStr.result=='success'){
+    var route=resultStr.data;
+    var html;
+    html='<tr>';
+    html+='<td>'+route.routeid+'</td>';
+    html+='<td>'+route.routename+'</td>';
+    html+='<td width="10%"><img src="'+route.routecover+'" alt="" width="180" height="120" /></td>';
+    html+='<td>'+route.routedate+'</td>';
+    html+='<td>';
+    html+='<div class="button-group">';
+    html+='<a type="button" class="button border-main" href="#"><span class="icon-edit"></span>修改</a>';
+    html+='<a class="button border-red" href="javascript:void(0)" onclick="return del(17)">';
+    html+='<span class="icon-trash-o"></span> 删除</a>';
+    html+='</div></td></tr>';
+    $('.table').append(html);
+  }else if(resultStr.result=='error'){
+    alert('发布失败，请稍候再试');
+  }
+});
+    });//jquery入口
+
+    function initRouteData(){
+      var selected_cityid=window.localStorage.selected_cityid;
+      $.ajax({
+        type:'POST',
+        async:true,
+        cache:false,
+        url:'tripuser_getAllRoutes.do',
+        data:{selected_cityid:selected_cityid},
+        success:function(result){
+          var jsonResult=JSON.parse(result);
+          $('.table').empty();
+          var tableHeader='<tr><th width="5%">路线号</th><th>路线标题</th><th>封面</th><th>时间</th><th width="400">操作</th></tr>';
+          $('.table').append(tableHeader);
+          if(jsonResult.length>0){
+            for(var i=0;i<jsonResult.length;i++){
+              var route=jsonResult[i];
+              var html;
+              html='<tr>';
+              html+='<td>'+route.routeid+'</td>';
+              html+='<td>'+route.routename+'</td>';
+              html+='<td width="10%"><img src="'+route.routecover+'" alt="" width="180" height="120" /></td>';
+              html+='<td>'+route.routedate+'</td>';
+              html+='<td>';
+              html+='<div class="button-group">';
+              html+='<a type="button" class="button border-main" href="#"><span class="icon-edit"></span>修改</a>';
+              html+='<a class="button border-red" href="javascript:void(0)" onclick="return del(17)">';
+              html+='<span class="icon-trash-o"></span> 删除</a>';
+              html+='</div></td></tr>';
+              $('.table').append(html);
+            }
+          }
+        },
+        error:function(e){
+          console.log(e);
+        }
+      });
+    }
+    </script>
+</head>
+<body>
+  <div class="panel admin-panel margin-top">
+    <div class="panel-head" id="add"><strong><span class="icon-pencil-square-o"></span>推荐路线列表</strong>
+  <button class="button button-little bg-blue" type="button" name="addSingleView" data-toggle="modal" data-target="#addRouteModal">添加路线</button>
+    </div>
+    <table class="table table-hover text-center">
+      <tr>
+        <th width="5%">路线号</th>
+        <th>路线标题</th>
+        <th>封面</th>
+        <th>时间</th>
+        <th width="250">操作</th>
+      </tr>
+      <tr>
+        <td>17</td>
+        <td>公司简介</td>
+        <td>1</td>
+        <td></td>
+        <td>
+        <div class="button-group">
+        <a type="button" class="button border-main" href="#"><span class="icon-edit"></span>修改</a>
+         <a class="button border-red" href="javascript:void(0)" onclick="return del(17)"><span class="icon-trash-o"></span> 删除</a>
+        </div>
+        </td>
+      </tr>
+
+    </table>
+  </div>
+
+  <!--模态框-->
+  <div class="modal fade" id="addRouteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+      <div class="modal-dialog" role="document" style="width: 1280px;">
+        <form method="post" class="form-x" action="tripuser_saveRoutes.do" enctype="multipart/form-data" name="routeform" id="routeform">
+          <input type="hidden" name="selected_cityid"  value="" />
+          <div class="modal-content" style="height:880px;">
+              <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
+                  <h3 class="modal-title" id="ModalLabel">添加路线</h3>
+              </div>
+              <div class="modal-body">
+                   <p><label>路线标题:</label>
+                   <input type="text" name="routename"></input>
+                   <label>封面：</label>
+                     <input type="file" class="button bg-blue margin-left" id="image1" value="+ 浏览上传" name="route_cover">
+                    </p>
+                    <p>
+                      <label>路线详细内容:</label>
+                      <div class="field">
+                        <!-- 富文本编辑器 -->
+                                      <!-- 加载编辑器的容器 -->
+                            <script id="container" name="content" type="text/plain">
+                                这里写你的初始化内容
+                            </script>
+                                <!-- 配置文件 -->
+                            <script type="text/javascript" src="ueditor.config.js"></script>
+                            <!-- 编辑器源码文件 -->
+                            <script type="text/javascript" src="ueditor.all.js"></script>
+                      </div>
+                      <input name="routeContent" type="hidden" id="routeContent">
+                      <input name="routePlainText" type="hidden" id="routePlainText">
+                    </p>
+             </div>
+          <div class="modal-footer">
+                  <button type="button" class="submit btn btn-primary" data-dismiss="modal" id="submitRoute">提交</button>
+                </div>
+      </div>
+    </form>
+          </div>
+      </div>
+</body>
+</html>

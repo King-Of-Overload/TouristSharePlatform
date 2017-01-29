@@ -403,6 +403,33 @@ public class UserStrategyAction extends ActionSupport implements ServletRequestA
 	}
 	
 	/**
+	 *查找单个用户攻略对象
+	 *手机端API
+	 *@param id 
+	 * @return gsonString
+	 */
+	public String getSingleUserStrategy(){
+		PrintWriter out=null;
+		try {
+			this.encodingReqAndRes();
+			out=response.getWriter();
+			String uStrategyId=request.getParameter("id");
+			UserStrategy existStrategy=userStrategyService.findStrategyByStrategyId(uStrategyId);
+			existStrategy.setCoverImage(DomUtil.getSingleImageFromHtmlDocument(existStrategy.getUstrategycontent()));
+			Gson gson=new Gson();
+			out.print(gson.toJson(existStrategy));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally {
+			if(out!=null){
+				out.close();
+				out.flush();
+			}
+		}
+		return NONE;
+	}
+	
+	/**
 	 * 批量下载攻略中的图片
 	 * @return
 	 */

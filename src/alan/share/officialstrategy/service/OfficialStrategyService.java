@@ -13,6 +13,7 @@ import org.apache.struts2.ServletActionContext;
 
 import alan.share.officialstrategy.dao.OfficialStrategyDao;
 import alan.share.officialstrategy.model.City;
+import alan.share.officialstrategy.model.CityIndexRecommend;
 import alan.share.officialstrategy.model.Cuision;
 import alan.share.officialstrategy.model.Destination;
 import alan.share.officialstrategy.model.LocalInfomation;
@@ -405,6 +406,63 @@ public class OfficialStrategyService {
 			}
 			officialStrategyDao.saveRoute(route);
 			result=route;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		return result;
+	}
+
+	/**
+	 * 根据城市id查找推荐内容集合
+	 * @param cityid
+	 * @return
+	 */
+	public List<CityIndexRecommend> findCityRecommendsByCityId(int cityid) {
+		List<CityIndexRecommend> results=new ArrayList<>();
+		try {
+			City city=officialStrategyDao.findCityByCityId(cityid);
+			results=officialStrategyDao.findCityRecommendsByCity(city);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		return results;
+	}
+
+	/**
+	 * 保存城市主页推荐数据
+	 * @param title
+	 * @param coverFile
+	 * @param coverName
+	 * @param desc
+	 * @param recommendContent
+	 * @param cityid
+	 * @return
+	 */
+	public Boolean saveCityIndexRecommend(String title, File coverFile, String coverName, String desc,
+			String recommendContent, int cityid) {
+		Boolean result=false;
+		try {
+			CityIndexRecommend recommend=new CityIndexRecommend();
+			City city=officialStrategyDao.findCityByCityId(cityid);
+			recommend.setCity(city);
+			recommend.setCityindexcontent(recommendContent);
+			DateFormat format=new SimpleDateFormat("yyyyMMddHHmmss");
+			String myFileName=format.format(new Date())+coverName;
+			String storagePath=ServletActionContext.getServletContext().getRealPath("/images/cityindexrecommend");
+			if(null!=coverFile){
+				File saveFile=new File(new File(storagePath),myFileName);
+				if(!saveFile.getParentFile().exists()){
+					saveFile.getParentFile().mkdirs();
+					FileUtils.copyFile(coverFile, saveFile);
+				}else{
+					FileUtils.copyFile(coverFile, saveFile);
+				}
+				recommend.setCityindexcover("images/cityindexrecommend/"+myFileName);
+			}
+			recommend.setCityindexdes(desc);
+			recommend.setCityindexid(UUIDUtils.getUUID());
+			recommend.setCityindexname(title);
+			result=officialStrategyDao.saveCityIndexRecommend(recommend);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

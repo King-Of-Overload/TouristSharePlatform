@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+    
+    <hibernate-mapping>
+    <class name="alan.share.officialstrategy.model.CityIndexRecommend" table="CityIndexRecommend">
+    <id name="cityindexid">
+    <generator class="assigned"/>  <!-- 主键生成策略，app赋值 -->
+    </id>
+    <property name="cityindexname"/>
+    <property name="cityindexcover"/>
+    <property name="cityindexdes"/>
+    <property name="cityindexcontent"/>
+    <!-- 路线与城市的关联 -->
+  <many-to-one class="alan.share.officialstrategy.model.City" column="cityid" name="city" lazy="false"/>
+    </class>
+    </hibernate-mapping>

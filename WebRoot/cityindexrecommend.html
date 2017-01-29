@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="renderer" content="webkit">
+<title>首页推荐</title>
+<link rel="stylesheet" href="css/pintuer.css">
+<link rel="stylesheet" href="css/admin.css">
+<script src="js/jquery.js"></script>
+<script src="js/pintuer.js"></script>
+<script src="libs/angular/angular.js"></script>
+<style>
+    .table th, .table td {
+text-align: center;
+vertical-align: middle!important;
+}
+    </style>
+<script type="text/javascript">
+  $(function(){//jQuery入口
+    initRecommendData();
+  });//入口
+
+  /**
+   * 初始化列表数据
+   */
+  function initRecommendData(){
+    var selected_cityid=window.localStorage.selected_cityid;
+      $.ajax({
+        type:'POST',
+        async:true,
+        cache:false,
+        url:'tripuser_getAllCityRecommendData.do',
+        data:{cityid:selected_cityid},
+        success:function(result){
+          var jsonResult=JSON.parse(result);
+          $('.table').empty();
+          var tableHeader='<tr><th width="5%">推荐号</th><th>推荐名称</th><th>图片</th><th>简介</th><th width="400">操作</th></tr>';
+          $('.table').append(tableHeader);
+          if(jsonResult.length>0){
+            for(var i=0;i<jsonResult.length;i++){
+              var recommend=jsonResult[i];
+              var html;
+              html='<tr>';
+              html+='<td>'+recommend.cityindexid+'</td>';
+              html+='<td>'+recommend.cityindexname+'</td>';
+              html+='<td width="10%"><img src="'+recommend.cityindexcover+'" alt="" width="180" height="120" /></td>';
+              html+='<td>'+recommend.cityindexdes+'</td>';
+              html+='<td>';
+              html+='<div class="button-group">';
+              html+='<a type="button" class="button border-main" href="#"><span class="icon-edit"></span>修改</a>';
+              html+='<a class="button border-red" href="javascript:void(0)" onclick="return del(17)">';
+              html+='<span class="icon-trash-o"></span> 删除</a>';
+              html+='</div></td></tr>';
+              $('.table').append(html);
+            }
+          }
+        },
+        error:function(e){
+          console.log(e);
+        }
+      });
+  }
+</script>
+</head>
+<body>
+<form method="post" action="" id="listform">
+  <div class="panel admin-panel">
+    <div class="panel-head"><strong class="icon-reorder"> 推荐列表</strong> <a href="" style="float:right; display:none;">添加字段</a></div>
+    <div class="padding border-bottom">
+      <ul class="search" style="padding-left:10px;">
+        <li> <a class="button border-main icon-plus-square-o" href="addrecommend.html">添加内容</a> </li>
+      </ul>
+    </div>
+    <table class="table table-hover text-center" id="bestChooseTable">
+      <tr>
+        <th width="100%" style="text-align:left; padding-left:20px;">ID</th>
+        <th>图片</th>
+        <th>标题</th>
+        <th>简介</th>
+        <th width="310">操作</th>
+      </tr>
+      <volist name="list" id="vo">
+        <tr>
+          <td style="text-align:left; padding-left:20px;"><input type="checkbox" name="bcId" value="" />
+           1</td>
+          <td width="10%"><img src="images/11.jpg" alt="" width="120" height="100" /></td>
+          <td>这是一套MUI后台精美管理系统，感谢您的支持</td>
+          <td><font color="#00CC99">首页</font></td>
+          <td><div class="button-group"> <a class="button border-main" href="add.html"><span class="icon-edit"></span> 修改</a> <a class="button border-red" href="javascript:void(0)" onclick="return del(1,1,1)"><span class="icon-trash-o"></span> 删除</a> </div></td>
+        </tr>
+      </volist>
+      <tr>
+        <td style="text-align:left; padding:19px 0;padding-left:20px;"><input type="checkbox" id="checkall"/>
+          全选 </td>
+        <td colspan="7" style="text-align:left;padding-left:20px;"><a href="javascript:void(0)" class="button border-red icon-trash-o" style="padding:5px 15px;" onclick="DelSelect()"> 删除</a>
+        </td>
+      </tr>
+    </table>
+  </div>
+</form>
+</body>
+</html>

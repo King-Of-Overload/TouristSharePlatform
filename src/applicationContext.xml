@@ -72,6 +72,7 @@
 		<value>alan/share/officialstrategy/model/TourismCovers.hbm.xml</value>
 		<value>alan/share/officialstrategy/model/Cuision.hbm.xml</value>
 		<value>alan/share/officialstrategy/model/Routes.hbm.xml</value>
+		<value>alan/share/officialstrategy/model/CityIndexRecommend.hbm.xml</value>
 		<value>alan/share/photo/model/AlbumTags.hbm.xml</value>
 		<value>alan/share/photo/model/UserAlbums.hbm.xml</value>
 		<value>alan/share/photo/model/UserPhotos.hbm.xml</value>

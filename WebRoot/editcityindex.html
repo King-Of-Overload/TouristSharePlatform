@@ -78,6 +78,9 @@ $("#localindex").ajaxForm(function(data){
   $('button[name=addRoute]').click(function(){
     location.href='routelist.html';
   });
+  $('button[name=addRecommend]').click(function(){
+    location.href='cityindexrecommend.html';
+  });
         });//jQuery入口函数
 
 
@@ -122,6 +125,7 @@ $("#localindex").ajaxForm(function(data){
 <button class="button button-little bg-mix" type="button" name="addPlay">娱乐管理</button>
 <button class="button button-little bg-main" type="button" name="addLive">生活管理</button>
 <button class="button button-little bg-blue" type="button" name="addRoute">添加路线</button>
+<button class="button button-little bg-green" type="button" name="addRecommend">添加首页推荐</button>
   </div>
   <div class="body-content">
     <form method="post" class="form-x" action="tripuser_editLocalInfo.do" enctype="multipart/form-data" name="localindex" id="localindex">

@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import alan.share.officialstrategy.model.City;
+import alan.share.officialstrategy.model.CityIndexRecommend;
 import alan.share.officialstrategy.model.Cuision;
 import alan.share.officialstrategy.model.Destination;
 import alan.share.officialstrategy.model.LocalInfomation;
@@ -413,6 +414,42 @@ public void saveRoute(Routes route) {
 	} catch (Exception e) {
 		throw new RuntimeException(e);
 	}
+}
+
+/**
+ * 根据城市对象查询推荐信息
+ * @param city
+ * @return
+ */
+@SuppressWarnings("unchecked")
+public List<CityIndexRecommend> findCityRecommendsByCity(City city) {
+	List<CityIndexRecommend> results=new ArrayList<>();
+	String hql="FROM CityIndexRecommend WHERE city=?";
+	try {
+		List<CityIndexRecommend> list=this.getHibernateTemplate().find(hql,city);
+		if(list.size()>0){
+			results=list;
+		}
+	} catch (Exception e) {
+		throw new RuntimeException(e);
+	}
+	return results;
+}
+
+/**
+ * 保存城市主页推荐对象
+ * @param recommend
+ * @return
+ */
+public Boolean saveCityIndexRecommend(CityIndexRecommend recommend) {
+	Boolean result=false;
+	try {
+		this.getHibernateTemplate().save(recommend);
+		result=true;
+	} catch (Exception e) {
+		throw new RuntimeException(e);
+	}
+	return result;
 }
 
 

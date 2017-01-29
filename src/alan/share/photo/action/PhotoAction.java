@@ -314,6 +314,7 @@ public class PhotoAction extends ActionSupport implements ServletRequestAware,Se
 		return "goToShowOneAlbum";
 	}
 	
+	
 	/**
 	 * 幻灯片页面获取图片
 	 * @return

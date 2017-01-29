@@ -1,6 +1,5 @@
 package alan.share.skillacademy.action;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.forwardedUrl;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -560,6 +559,33 @@ public class SkillAcademyAction extends ActionSupport implements ServletRequestA
 		}
 		
 		return "goTohottagSkillList";
+	}
+	
+	/**
+	 * 获取单个技法学院文章数据
+	 * 手机端API
+	 * @param id
+	 * @return gsonString
+	 */
+	public String getSingleSkillAcademy(){
+		PrintWriter out=null;
+		try {
+			this.encodingReqAndRes();
+			out=response.getWriter();
+			String id=request.getParameter("id");
+			SkillAcademy academy=academyService.findSkillAcademyBySkillId(id);
+			academy.setCoverImage(DomUtil.getSingleImageFromHtmlDocument(academy.getSkillcontent()));
+			Gson gson=new Gson();
+			out.print(gson.toJson(academy));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally {
+			if(out!=null){
+				out.close();
+				out.flush();
+			}
+		}
+		return NONE;
 	}
 	
 	/**

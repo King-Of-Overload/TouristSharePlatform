@@ -47,6 +47,7 @@ import com.opensymphony.xwork2.util.ValueStack;
 import alan.share.adapter.MyTypeAdapter;
 import alan.share.index.service.IndexService;
 import alan.share.officialstrategy.model.City;
+import alan.share.officialstrategy.model.CityIndexRecommend;
 import alan.share.officialstrategy.model.Cuision;
 import alan.share.officialstrategy.model.Destination;
 import alan.share.officialstrategy.model.LocalInfomation;
@@ -132,6 +133,9 @@ public class TripUserAction extends ActionSupport implements ServletRequestAware
 	private File route_cover;//路线推荐封面文件
 	private String route_coverFileName;//路线推荐 图片名称
 	
+	private File city_recommend_cover;//城市主页推荐封面
+	private String city_recommend_coverFileName;//城市主页推荐图片名称
+	
 	private static final String FOOD="food";
 	private static final String HOTEL="hotel";
 	private static final String VIEW="view";
@@ -140,6 +144,22 @@ public class TripUserAction extends ActionSupport implements ServletRequestAware
 	private static final String LIVE="live";
 	
 	
+	public File getCity_recommend_cover() {
+		return city_recommend_cover;
+	}
+
+	public void setCity_recommend_cover(File city_recommend_cover) {
+		this.city_recommend_cover = city_recommend_cover;
+	}
+
+	public String getCity_recommend_coverFileName() {
+		return city_recommend_coverFileName;
+	}
+
+	public void setCity_recommend_coverFileName(String city_recommend_coverFileName) {
+		this.city_recommend_coverFileName = city_recommend_coverFileName;
+	}
+
 	public File getRoute_cover() {
 		return route_cover;
 	}
@@ -2128,6 +2148,40 @@ public class TripUserAction extends ActionSupport implements ServletRequestAware
 		return NONE;
 	}
 	
+	/**
+	 * 获取城市相关数据
+	 * 手机端API
+	 * @param cityid
+	 * @return gsonString
+	 */
+	public String getCityRelevantData(){
+		PrintWriter out=null;
+		try {
+			this.encodingReqAndRes();
+			out=response.getWriter();
+			int cityId=Integer.parseInt(request.getParameter("cityid"));
+			LocalInfomation infomation=osStrategyService.findLocalInformationByCityId(cityId);
+			JSONObject object=new JSONObject();
+			Gson gson=new Gson();
+			if(null!=infomation){
+				object.put("result", "success");
+				List<Routes> routes=osStrategyService.findRoutesByCityId(cityId);
+				object.put("routes", gson.toJson(routes));
+				object.put("info", gson.toJson(infomation));
+				List<CityIndexRecommend> recommends=osStrategyService.findCityRecommendsByCityId(cityId);
+				object.put("recommends", gson.toJson(recommends));
+			}else{
+				object.put("result", "empty");
+			}
+			out.print(object.toString());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally {
+			if(out!=null) out.close();
+		}
+		return NONE;
+	}
+	
 	
 	/*-------------------------------------------管理员业务逻辑区---------------------------------------------------------*/
 	/**
@@ -2699,6 +2753,64 @@ public class TripUserAction extends ActionSupport implements ServletRequestAware
 			e.printStackTrace();
 		}finally{
 			if(out!=null) out.close();
+		}
+		return NONE;
+	}
+	
+	/**
+	 * 获取城市首页推荐信息
+	 * 后台API
+	 * @param cityid
+	 * @return gsonString
+	 */
+	public String getAllCityRecommendData(){
+		PrintWriter out=null;
+		try {
+			this.encodingReqAndRes();
+			out=response.getWriter();
+			int cityid=Integer.parseInt(request.getParameter("cityid"));
+			List<CityIndexRecommend> recommends=osStrategyService.findCityRecommendsByCityId(cityid);
+			Gson gson=new Gson();
+			out.print(gson.toJson(recommends));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally{
+			if(out!=null) {out.close();out.flush();}
+		}
+		return NONE;
+	}
+	
+	/**
+	 * 上传城市主页推荐信息
+	 * 后台API
+	 * @param title 标题
+	 * @param city_recommend_cover 封面图片
+	 * @param desc 简介
+	 * @param recommendContent 详细内容
+	 * @param cityid 当前城市id
+	 * @return
+	 */
+	public String uploadCityRecommend(){
+		PrintWriter out=null;
+		try {
+			this.encodingReqAndRes();
+			out=response.getWriter();
+			String title=request.getParameter("title");
+			File coverFile=city_recommend_cover;
+			String coverName=city_recommend_coverFileName;
+			String desc=request.getParameter("desc");
+			String recommendContent=request.getParameter("recommendContent");
+			int cityid=Integer.parseInt(request.getParameter("cityid"));
+			Boolean result=osStrategyService.saveCityIndexRecommend(title,coverFile,coverName,desc,recommendContent,cityid);
+			if(result){
+				RequestDispatcher rd;
+			    rd = ServletActionContext.getServletContext().getRequestDispatcher("/cityindexrecommend.html");
+			    rd.forward(request,response);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally{
+			if(out!=null) {out.close();out.flush();}
 		}
 		return NONE;
 	}
